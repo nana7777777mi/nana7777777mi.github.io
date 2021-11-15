@@ -1,389 +1,219 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/nana7777777mi/nana7777777mi.github.io/images/OIP-C.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/nana7777777mi/nana7777777mi.github.io/images/OIP-C.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/nana7777777mi/nana7777777mi.github.io/images/OIP-C.png">
-  <link rel="mask-icon" href="/nana7777777mi/nana7777777mi.github.io/images/OIP-C.svg" color="#222">
+<html>
 
+<head>
+    <meta charset="utf-8">
+    
+    <title>Tag: pwnable | bof | ret2libc | WELCOME to nobody&#39;s homepage</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/favicon/favicon.ico">
+    
 <link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/main.css">
 
-
-<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"github.com","root":"/nana7777777mi/nana7777777mi.github.io/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta property="og:type" content="website">
-<meta property="og:title" content="WELCOME to nobody&#39;s homepage">
-<meta property="og:url" content="https://github.com/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/index.html">
-<meta property="og:site_name" content="WELCOME to nobody&#39;s homepage">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="inva1id">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="https://github.com/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/">
-
-
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : false,
-    lang   : 'zh-CN'
-  };
-</script>
-
-  <title>标签: pwnable | bof | ret2libc | WELCOME to nobody's homepage</title>
-  
-
-
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">WELCOME to nobody's homepage</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">pwn for fun not for profit</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
+    
+<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/tagplugins.css">
 
     
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
+<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/highlight.css">
+
+    
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/nana7777777mi/nana7777777mi.github.io/atom.xml" title="WELCOME to nobody&#39;s homepage" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
 
-          <div class="content tag">
-            
+<body>
+  <div class="blog-header">
+   <a id="menu-nav-icon"><img src="/nana7777777mi/nana7777777mi.github.io/image/menu.png"/></a>
+   <div class="nav-container">
+     <nav id="main-nav">
+       
+         <a class="main-nav-link" href="/nana7777777mi/nana7777777mi.github.io/">Home</a>
+       
+         <a class="main-nav-link" href="/nana7777777mi/nana7777777mi.github.io/archives">Archives</a>
+       
+     </nav>
+   </div>
+   <!--
+   <div id="search-form-wrap">
+     <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://github.com/nana7777777mi/nana7777777mi.github.io"></form>
+   </div>
+ -->
+    <h1 class="blog-title">WELCOME to nobody&#39;s homepage</h1>
+    <p class="lead blog-description">pwn for fun not for profit</p>
+</div>
 
-  
-  
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">pwnable | bof | ret2libc
-          <small>标签</small>
-        </h2>
-      </div>
-
+  <div id='main-part'>
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
-    </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-11-13T15:50:23+08:00"
-              content="2021-11-13">
-          11-13
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/" itemprop="url">
-            <span itemprop="name">pwnable tw silverbullet writeup</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-11-13T15:44:54+08:00"
-              content="2021-11-13">
-          11-13
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-dubblesort-writeup/" itemprop="url">
-            <span itemprop="name">pwnable tw dubblesort writeup</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-    </div>
-  </div>
-  
-  
-  
-
-  
-
-
-
-          </div>
+<div class="article-index">
+      <div class="sidelist">
+        <div class="list">
           
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
+              <h3>Pwnable | Bof | Ret2libc</h3>
           
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
+          
+          <ul class="archive-list">
+          
+              <li class="archive-list-item">
+                  <a class="archive-list-link" href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-ROP/">pwnable | ROP </a>
+                  <span class="archive-list-count"> (1)</span>
+              </li>
+          
+              <li class="archive-list-item">
+                  <a class="archive-list-link" href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/">pwnable | bof | ret2libc </a>
+                  <span class="archive-list-count"> (2)</span>
+              </li>
+          
+              <li class="archive-list-item">
+                  <a class="archive-list-link" href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-ebp-hijacking-unlink/">pwnable | ebp_hijacking | unlink </a>
+                  <span class="archive-list-count"> (1)</span>
+              </li>
+          
+              <li class="archive-list-item">
+                  <a class="archive-list-link" href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-elf文件格式-ROP/">pwnable | elf文件格式 | ROP </a>
+                  <span class="archive-list-count"> (1)</span>
+              </li>
+          
+              <li class="archive-list-item">
+                  <a class="archive-list-link" href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-heap-UAF/">pwnable | heap | UAF </a>
+                  <span class="archive-list-count"> (1)</span>
+              </li>
+          
+          </ul>
+          
       </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="inva1id"
-      src="/nana7777777mi/nana7777777mi.github.io/images/ran.jpg">
-  <p class="site-author-name" itemprop="name">inva1id</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/nana7777777mi/nana7777777mi.github.io/archives/">
+    </div>
+    <div class="main lists">
         
-          <span class="site-state-item-count">6</span>
-          <span class="site-state-item-name">日志</span>
+        <!-- Date and Author -->
+<p class="blog-post-meta">
+    2021-11-13
+    
+</p>
+
+<div class="blog-post">
+    <!-- Title -->
+    <!--
+    <h3 class="blog-post-title-archive">
+        <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/">
+            Pwnable Tw Silverbullet Writeup
         </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">标签</span>
-      </div>
-  </nav>
+    </h3>
+  -->
+    
+      <h3 class="blog-post-title-archive">
+        <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/">Pwnable Tw Silverbullet Writeup</a>
+      </h3>
+    
+
+
+    <hr />
+    
+
+    
+
+
+<div class="blog-tags-container">
+    <span><img src="/nana7777777mi/nana7777777mi.github.io/image/tagsicon.png" alt=""/></span>
+    <a href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/">#pwnable | bof | ret2libc</a>
 </div>
 
 
+</div>
 
-      </div>
+        
+        <!-- Date and Author -->
+<p class="blog-post-meta">
+    2021-11-13
+    
+</p>
+
+<div class="blog-post">
+    <!-- Title -->
+    <!--
+    <h3 class="blog-post-title-archive">
+        <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-dubblesort-writeup/">
+            Pwnable Tw Dubblesort Writeup
+        </a>
+    </h3>
+  -->
+    
+      <h3 class="blog-post-title-archive">
+        <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-dubblesort-writeup/">Pwnable Tw Dubblesort Writeup</a>
+      </h3>
+    
+
+
+    <hr />
+    
+
+    
+
+
+<div class="blog-tags-container">
+    <span><img src="/nana7777777mi/nana7777777mi.github.io/image/tagsicon.png" alt=""/></span>
+    <a href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/">#pwnable | bof | ret2libc</a>
+</div>
+
+
+</div>
+
+        
+        
 
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">inva1id</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+
   </div>
+  <!-- Footer -->
+  <div id="footer">
+  <div id="footer-social">
+    
+    
+    
+    
+    
+    
+</div>
 
-        
+  <p id="footer-info">
+    &copy; 2021 inva1id<br>
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> -
+    主题 <a href="https://github.com/Suolawangzai/hexo-theme-nebula" target="_blank">nebula</a>
+  </p>
 
-
-
-
-
-
-
-
-      </div>
-    </footer>
+  <div id="busuanzi">
+    <span id="busuanzi_container_site_pv">
+      &hearts;
+    总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
   </div>
+  <!--
+  <div id="footer-info">
+    &copy; 2021 inva1id<br>
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+  </div>
+-->
+</div>
 
-  
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/anime.min.js"></script>
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/velocity/velocity.min.js"></script>
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/utils.js"></script>
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/motion.js"></script>
-
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/schemes/muse.js"></script>
+  <!-- After footer scripts -->
+  <!-- Disqus Comments -->
 
 
-<script src="/nana7777777mi/nana7777777mi.github.io/js/next-boot.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
+<script src="/nana7777777mi/nana7777777mi.github.io/js/main.js"></script>
 
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
-    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
-    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
-    <script type="text/javascript" src="/js/src/fireworks.js"></script>
-  
 
 <script src="/nana7777777mi/nana7777777mi.github.io/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
 </html>
